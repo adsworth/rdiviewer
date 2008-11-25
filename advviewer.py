@@ -10,10 +10,6 @@ import types
 
 import sys
 
-#if not hasattr(sys, "frozen"):
-#    import wxversion
-#    wxversion.select("2.5")
-
 import wx
 
 import controls
@@ -538,10 +534,6 @@ class advFrame(wx.Frame):
 
     def _MakeToolBar(self):
         tb = self.CreateToolBar(wx.TB_HORIZONTAL|wx.NO_BORDER)
-
-        #mID = wx.NewId()
-        #self.__SetToolPath(self, tb, mID, images.getDbIncBitmap(), 'Inc Year')
-        #wx.EVT_TOOL(self, mID, self.OnIncYear)
 
         tb.Realize()
 
