@@ -16,7 +16,7 @@ manifestVersion="1.0">
     name="Controls"
     type="win32"
 />
-<description>advViewer</description>
+<description>RDIViewer</description>
 <dependency>
     <dependentAssembly>
         <assemblyIdentity
@@ -33,12 +33,12 @@ manifestVersion="1.0">
 """
 
 setup(
-      name="advViewer",
-      description = "advViewer",
+      name="RDIViewer",
+      description = "RDIViewer",
       version = "0.0.1",
       windows=[
-        { "script":             "advviewer.py",
-          "icon_resources":     [(0,"advViewer.ico")],
+        { "script":             "rdiviewer.py",
+          "icon_resources":     [(0,"RDIViewer.ico")],
           "other_resources":    [(24,1,manifest)]
         }
       ],
@@ -53,12 +53,12 @@ setup(
 )
 
 
-if os.path.exists(".\\advViewer"):
-    shutil.rmtree(".\\advViewer")
+if os.path.exists(".\\RDIViewer"):
+    shutil.rmtree(".\\RDIViewer")
 
-os.rename(".\\dist", ".\\advViewer")
+os.rename(".\\dist", ".\\RDIViewer")
 
 d = datetime.datetime.now()
 
-os.system("c:\\tools\\zip.exe -r .\\advViewer-%s-%02d-%02d.zip .\\advViewer" %(d.year,d.month,d.day))
+os.system("c:\\tools\\zip.exe -r .\\RDIViewer-%s-%02d-%02d.zip .\\RDIViewer" %(d.year,d.month,d.day))
 
