@@ -7,7 +7,7 @@ import wx.gizmos
 import wx.stc
 import wx.lib.mixins.listctrl
 
-import common
+import rdiviewer.common as common
 
 class AboutDialog(wx.Dialog):
     def __init__(
