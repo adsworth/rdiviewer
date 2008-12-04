@@ -31,7 +31,6 @@ import wx
 from   rdiviewer import common
 import rdiviewer.gui.controls as controls
 import rdiviewer.filehandlers as filehandlers
-import rdiviewer.filter as filter
 
 class MainFrame(wx.Frame):
     def __init__(self, parent, id, title,pos=wx.Point(50,50), size=wx.Size(400, 400)):
@@ -47,8 +46,6 @@ class MainFrame(wx.Frame):
         self._MakeToolBar()
 
         self._DefineControlsAndEvents()
-
-        self._LoadFilters()
 
         if wx.Platform != '__WXMAC__':
             self._LoadIcon()
@@ -70,62 +67,6 @@ class MainFrame(wx.Frame):
             self.SetIcon(icon)
         except:
             pass #if it doesn't work don't sweat.
-
-    def _LoadFilters(self):
-        filter_file = wx.ConfigBase_Get().Read(common.INI_FILTER_FILE)
-
-        try:
-            self.filter_list = filter.advFilterList(filter_file)
-        except OSError:
-            filter_file = self._InitFilterFile()
-            self.filter_list = filter.advFilterList(filter_file)
-
-        filter_names = self.filter_list.GetFilterNames()
-        filter_names.sort()
-        
-        self.doc_filters.Clear()
-        
-        for name in filter_names:
-            self.doc_filters.Append(name)
-
-    def _InitFilterFile(self):
-        dlg = wx.FileDialog(self, "Specify a filter file", style = wx.SAVE )
-        if dlg.ShowModal() == wx.ID_OK:
-            paths = dlg.GetPaths()
-            for path in paths:
-                wx.ConfigBase_Get().Write(common.INI_FILTER_FILE, path)
-                return path
-
-    def OnFilterComboBoxKeyDown(self, event):
-        if event.GetKeyCode() <> wx.WXK_RETURN:
-            event.Skip()
-            return
-
-        if len(self.doc_filters.GetValue()) == 0:
-            event.Skip()
-            return
-
-        if self.doc_filters.FindString(self.doc_filters.GetValue()) <> wx.NOT_FOUND and event.ControlDown() == True:
-            dlg = controls.advFilterDialog(self)
-            filter_data = self.filter_list.GetFilterData(self.doc_filters.GetValue())
-            dlg.SetData(filter_data)
-            dlg.ShowModal()
-        elif self.doc_filters.FindString(self.doc_filters.GetValue()) == wx.NOT_FOUND :
-            msgdlg = wx.MessageDialog(self, "%s isn't a valid filter\nDo you want to create a new filter?" 
-                          %(self.doc_filters.GetValue()), "Unknown filter", 
-                          style= wx.ICON_QUESTION | wx.YES_NO)
-            if msgdlg.ShowModal() == wx.ID_YES:
-                dlg = controls.advFilterDialog(self)
-                filter_data = self.filter_list.NewFilter(self.doc_filters.GetValue())
-                filter_data.SetName(self.doc_filters.GetValue())
-                dlg.SetData(filter_data)
-                dlg.ShowModal()
-        else:
-            pass
-
-    def OnFilterComboBoxSelected(self, event):
-        self.selected_filter = event.GetString()
-        event.Skip()
     
     def _DefineControlsAndEvents(self):
         wx.SetCursor(wx.StockCursor(wx.CURSOR_WAIT))
@@ -135,17 +76,11 @@ class MainFrame(wx.Frame):
         self.nb = wx.Notebook(self.splitter, -1, style=wx.CLIP_CHILDREN)
 
         self.lPanel = wx.Panel(self.splitter)
-
-        self.doc_filters = wx.ComboBox(self.lPanel)
-#        self.doc_filters.Bind(wx.EVT_TEXT_ENTER, self.OnFilterComboBoxEnter)
-        self.doc_filters.Bind(wx.EVT_KEY_DOWN, self.OnFilterComboBoxKeyDown)
-        self.doc_filters.Bind(wx.EVT_COMBOBOX, self.OnFilterComboBoxSelected)
         
         self.doc_list = controls.SingleColListCtrl(self.lPanel, -1, "Documents",
                                  style=wx.LC_REPORT | wx.NO_BORDER)
 
         self.lPanelSizer = wx.BoxSizer(wx.VERTICAL)
-        self.lPanelSizer.Add(self.doc_filters, 0, wx.EXPAND, 0)
         self.lPanelSizer.Add(self.doc_list, 1, wx.EXPAND, 0)
         self.lPanel.SetAutoLayout(True)
         self.lPanel.SetSizer(self.lPanelSizer)
