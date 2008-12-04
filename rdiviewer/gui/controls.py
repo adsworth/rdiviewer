@@ -210,10 +210,10 @@ class advFilterDialog(wx.Dialog):
         sizer.SetHGap(10)
         sizer.SetVGap(2)
 
-    def __get_what_choices(self):
+    def _get_what_choices(self):
         return ["Text", "Group", "Variable", "Wert"]
     
-    def __GetFilterSettingPanel(self):
+    def _GetFilterSettingPanel(self):
         psizer = wx.GridBagSizer()
         nvsizer = wx.GridBagSizer()
         self._set_control_gap(psizer)
@@ -239,15 +239,15 @@ class advFilterDialog(wx.Dialog):
         psizer.Add(nvsizer,(3,1), (1,3))
         
         self.value_text_ctrl.Enable(False)
-        self.what_combo.AppendItems(self.__get_what_choices())
+        self.what_combo.AppendItems(self._get_what_choices())
 
         p.SetAutoLayout(True)
         p.SetSizer(psizer)
 
         return p
 
-    def __DefineControlAndEvents(self):
-        self.p = self.__GetFilterSettingPanel()
+    def _DefineControlAndEvents(self):
+        self.p = self._GetFilterSettingPanel()
         vsizer = wx.BoxSizer(wx.VERTICAL)
         buttonsizer = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -280,7 +280,7 @@ class advSTC(wx.stc.StyledTextCtrl):
 
         self.Bind(wx.EVT_WINDOW_DESTROY, self.OnDestroy)
         if wx.Platform == '__WXMAC__':
-            self.StyleSetSpec(wx.stc.STC_STYLE_DEFAULT, "size:%d,face:%s" % (14, 'Courier New'))
+            self.StyleSetSpec(wx.stc.STC_STYLE_DEFAULT, "size:%d,face:%s" % (12, 'Monaco'))
         else:
             self.StyleSetSpec(wx.stc.STC_STYLE_DEFAULT, "size:%d,face:%s" % (10, 'Courier New'))
 

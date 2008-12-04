@@ -28,9 +28,9 @@ import sys
 
 import wx
 
+from   rdiviewer import common
 import rdiviewer.gui.controls as controls
 import rdiviewer.filehandlers as filehandlers
-import rdiviewer.common as common
 import rdiviewer.filter as filter
 
 class MainFrame(wx.Frame):
@@ -44,42 +44,40 @@ class MainFrame(wx.Frame):
         self.CreateStatusBar()
 
         self._MakeMenu()
-        self._MakeToolBar()             # toolbar
+        self._MakeToolBar()
 
         self._DefineControlsAndEvents()
 
-        self.__LoadFilters()
+        self._LoadFilters()
 
-        self.__LoadIcon()
-        #try:            # - don't sweat it if it doesn't load
-            #self.SetIcon()
-        #finally:
-            #pass
+        if wx.Platform != '__WXMAC__':
+            self._LoadIcon()
 
         self.Show(True)
 
-    def __LoadIcon(self):
-        # load icon that has an id of 1
-        dir = os.path.dirname(sys.argv[0])
-        if dir == '':
-            dir = os.getcwd()
-        if sys.argv[0][-3:].lower() == 'exe':
-            iconLoc = wx.IconLocation(sys.argv[0], 0)
-        else:
-            iconLoc = wx.IconLocation(dir + os.sep + 'rdiviewer.ico', 0)
+    def _LoadIcon(self):
+        try:
+            dir = os.path.dirname(sys.argv[0])
+            if dir == '':
+                dir = os.getcwd()
+            if sys.argv[0][-3:].lower() == 'exe':
+                iconLoc = wx.IconLocation(sys.argv[0], 0)
+            else:
+                iconLoc = wx.IconLocation(dir + os.sep + 'rdiviewer.ico', 0)
 
-        icon = wx.IconFromLocation(iconLoc)
-        # set title bar icon to use this one
-        self.SetIcon(icon)
+            icon = wx.IconFromLocation(iconLoc)
+            # set title bar icon to use this one
+            self.SetIcon(icon)
+        except:
+            pass #if it doesn't work don't sweat.
 
-    def __LoadFilters(self):
-        config = wx.ConfigBase_Get()
-        filter_file = config.Read(common.INI_FILTER_FILE)
+    def _LoadFilters(self):
+        filter_file = wx.ConfigBase_Get().Read(common.INI_FILTER_FILE)
 
         try:
             self.filter_list = filter.advFilterList(filter_file)
         except OSError:
-            filter_file = self.__InitFilterFile()
+            filter_file = self._InitFilterFile()
             self.filter_list = filter.advFilterList(filter_file)
 
         filter_names = self.filter_list.GetFilterNames()
@@ -90,13 +88,12 @@ class MainFrame(wx.Frame):
         for name in filter_names:
             self.doc_filters.Append(name)
 
-    def __InitFilterFile(self):
-        config = wx.ConfigBase_Get()
+    def _InitFilterFile(self):
         dlg = wx.FileDialog(self, "Specify a filter file", style = wx.SAVE )
         if dlg.ShowModal() == wx.ID_OK:
             paths = dlg.GetPaths()
             for path in paths:
-                config.Write(common.INI_FILTER_FILE, path)
+                wx.ConfigBase_Get().Write(common.INI_FILTER_FILE, path)
                 return path
 
     def OnFilterComboBoxKeyDown(self, event):
@@ -131,7 +128,6 @@ class MainFrame(wx.Frame):
         event.Skip()
     
     def _DefineControlsAndEvents(self):
-        config = wx.ConfigBase_Get()
         wx.SetCursor(wx.StockCursor(wx.CURSOR_WAIT))
         self.splitter = wx.SplitterWindow(self, -1, style=wx.NO_3D)
 
@@ -186,7 +182,7 @@ class MainFrame(wx.Frame):
 
 
         # add the windows to the splitter and split it.
-        self.splitter.SplitVertically(self.lPanel, self.nb, config.ReadInt(common.INI_SPLITTER_POS,180))
+        self.splitter.SplitVertically(self.lPanel, self.nb, wx.ConfigBase_Get().ReadInt(common.INI_SPLITTER_POS,180))
 
         self.splitter.SetMinimumPaneSize(100)
 
@@ -254,28 +250,26 @@ class MainFrame(wx.Frame):
         self.printOrPreviewMenuItem.Enable(True)
 
     def OnCloseWindow(self, event):
-        config = wx.ConfigBase_Get()
-
         frm_pos = self.GetPosition()
-        config.WriteInt(common.INI_WINDOW_POS_X, frm_pos.x)
-        config.WriteInt(common.INI_WINDOW_POS_Y, frm_pos.y)
+        wx.ConfigBase_Get().WriteInt(common.INI_WINDOW_POS_X, frm_pos.x)
+        wx.ConfigBase_Get().WriteInt(common.INI_WINDOW_POS_Y, frm_pos.y)
 
         frm_size = self.GetSize()
-        config.WriteInt(common.INI_WINDOW_SIZE_W, frm_size.width)
-        config.WriteInt(common.INI_WINDOW_SIZE_H, frm_size.height)
+        wx.ConfigBase_Get().WriteInt(common.INI_WINDOW_SIZE_W, frm_size.width)
+        wx.ConfigBase_Get().WriteInt(common.INI_WINDOW_SIZE_H, frm_size.height)
 
         try:
             col_count = self.doc_structure.GetColumnCount()
             for idx in range(col_count):
                 col_w = self.doc_structure.GetColumnWidth(idx)
                 ini_key = common.INI_COLUMN_WIDTH + str(idx)
-                config.WriteInt(ini_key, col_w)
+                wx.ConfigBase_Get().WriteInt(ini_key, col_w)
 
         except:
             pass
 
         splttr_pos = self.splitter.GetSashPosition()
-        config.WriteInt(common.INI_SPLITTER_POS, splttr_pos)
+        wx.ConfigBase_Get().WriteInt(common.INI_SPLITTER_POS, splttr_pos)
 
 
         return self.Destroy()
@@ -301,11 +295,10 @@ class MainFrame(wx.Frame):
             pass
         
     def OnFileOpen(self, event):
-        config = wx.ConfigBase_Get()
         wildcard = "SAPScript RDI (*.rdi;*.dat;*.prt)|*.rdi;*.dat;*.prt|" \
                    "All files (*.*)|*.*"
 
-        dir = config.Read(common.INI_FILEOPEN_DIR, os.getcwd())
+        dir = wx.ConfigBase_Get().Read(common.INI_FILEOPEN_DIR, os.getcwd())
 
         dlg = wx.FileDialog(self, "Choose a file", dir, "", wildcard,
                             wx.OPEN | wx.CHANGE_DIR
@@ -316,7 +309,7 @@ class MainFrame(wx.Frame):
                 pass
             self.LoadFile(path)
             lastDir = os.path.dirname(path)
-            config.Write(common.INI_FILEOPEN_DIR, lastDir)
+            wx.ConfigBase_Get().Write(common.INI_FILEOPEN_DIR, lastDir)
             dlg.Destroy()
         self.doc_list.SetFocus()
 
@@ -340,13 +333,12 @@ class MainFrame(wx.Frame):
             self.doc_structure.SetColumns(self.handler.GetColumns())
 
     def OnEnqueue(self, event):
-        config = wx.ConfigBase_Get()
 
         if self.doc_list.GetSelectedItemCount() == 0:
             return
 
         try:
-            dir = config.Read(common.INI_SPOOL_DIR)
+            dir = wx.ConfigBase_Get().Read(common.INI_SPOOL_DIR)
             assert dir <> ''
         except:
             # In this case we include a "New directory" button.
@@ -358,11 +350,11 @@ class MainFrame(wx.Frame):
             # we destroy it.
             if dlg.ShowModal() == wx.ID_OK:
                 dir = dlg.GetPath()
-                config.Write(common.INI_SPOOL_DIR, dir)
+                wx.ConfigBase_Get().Write(common.INI_SPOOL_DIR, dir)
             dlg.Destroy()
 
         try:
-            ext = config.Read(common.INI_SPOOL_FILE_EXT)
+            ext = wx.ConfigBase_Get().Read(common.INI_SPOOL_FILE_EXT)
             assert ext <> ''
         except:
             dlg = wx.TextEntryDialog(
@@ -371,13 +363,13 @@ class MainFrame(wx.Frame):
 
             if dlg.ShowModal() == wx.ID_OK:
                 ext = dlg.GetValue()
-                config.Write(common.INI_SPOOL_FILE_EXT, ext)
+                wx.ConfigBase_Get().Write(common.INI_SPOOL_FILE_EXT, ext)
             dlg.Destroy()
 
         fileName = dir + os.sep + common.makeUniqueString() + '.' + ext
 
         try:
-            default_encoding = config.Read(common.INI_CODECS_DEFAULT,'cp1250')
+            default_encoding = wx.ConfigBase_Get().Read(common.INI_CODECS_DEFAULT,'cp1250')
             if len(default_encoding) == 0:
                default_encoding = 'cp1250'
             fd = codecs.open(fileName,"w", default_encoding)
@@ -386,7 +378,7 @@ class MainFrame(wx.Frame):
             dlg = wx.MessageDialog(self, str, "Fehler", wx.OK | wx.ICON_EXCLAMATION)
             dlg.ShowModal()
             dlg.Destroy()
-            config.Write(common.INI_SPOOL_DIR, "")
+            wx.ConfigBase_Get().Write(common.INI_SPOOL_DIR, "")
 
         try:
             fd.write(self.doc_contents.GetValue())
@@ -401,8 +393,7 @@ class MainFrame(wx.Frame):
             dlg.Destroy()
 
     def OnFindMenuItem(self, event):
-        config = wx.ConfigBase_Get()
-        findFlags = config.ReadInt(common.INI_FIND_FLAGS,0)
+        findFlags = wx.ConfigBase_Get().ReadInt(common.INI_FIND_FLAGS,0)
         self.findData = wx.FindReplaceData()
         self.findData.SetFlags(findFlags)
         dlg = wx.FindReplaceDialog(self, self.findData, "Find",
@@ -445,9 +436,8 @@ class MainFrame(wx.Frame):
             self.lastFindIdx = 0
 
     def OnFindDlgClose(self, event):
-        config = wx.ConfigBase_Get()
         findFlags = self.findData.GetFlags()
-        config.WriteInt(common.INI_FIND_FLAGS,findFlags)
+        wx.ConfigBase_Get().WriteInt(common.INI_FIND_FLAGS,findFlags)
         event.GetDialog().Destroy()
         event.Skip()
 
@@ -471,28 +461,27 @@ class MainFrame(wx.Frame):
         dlg.CenterOnScreen()
         val = dlg.ShowModal()
         dlg.Destroy()
-    
     def _MakeMenu(self):
         self.mainmenu = wx.MenuBar()
 
-        menu = self.__MakeFileMenu()
+        menu = self._MakeFileMenu()
         self.mainmenu.Append(menu, '&File')
 
-        menu = self.__MakeDocumentMenu()
+        menu = self._MakeDocumentMenu()
 
         self.mainmenu.Append(menu, '&Document')
 
-        menu = self.__MakeEditMenu()
+        menu = self._MakeEditMenu()
 
         self.mainmenu.Append(menu, '&Edit')
 
-        menu = self.__MakeHelpMenu()
+        menu = self._MakeHelpMenu()
 
         self.mainmenu.Append(menu, '&Help')
 
         self.SetMenuBar(self.mainmenu)
 
-    def __MakeEditMenu(self):
+    def _MakeEditMenu(self):
         menu = wx.Menu()
 
         mID = wx.NewId()
@@ -501,7 +490,7 @@ class MainFrame(wx.Frame):
         
         return menu
 
-    def __MakeFileMenu(self):
+    def _MakeFileMenu(self):
         menu = wx.Menu()
 
         mID = wx.NewId()
@@ -514,7 +503,7 @@ class MainFrame(wx.Frame):
 
         return menu
 
-    def __MakeDocumentMenu(self):
+    def _MakeDocumentMenu(self):
         menu = wx.Menu()
         self.docMenuItems = []
         mID = wx.NewId()
@@ -536,7 +525,7 @@ class MainFrame(wx.Frame):
 
         return menu
 
-    def __MakeHelpMenu(self):
+    def _MakeHelpMenu(self):
         menu = wx.Menu()
         mID = wx.NewId()
         mi = menu.Append(mID, '&About...', 'About Dialog')
@@ -553,6 +542,6 @@ class MainFrame(wx.Frame):
 
         tb.Realize()
 
-    def __SetToolPath(self, tb, id, bmp, title):
+    def _SetToolPath(self, tb, id, bmp, title):
         tb.AddSimpleTool(id, bmp, title, title)
 

@@ -32,11 +32,11 @@ class MainApp(wx.App):
         self.config.SetRecordDefaults(True)
         wx.ConfigBase_Set(self.config)
 
-        win_pos = wx.Point(self.config.ReadInt(common.INI_WINDOW_POS_X, 100),
-                           self.config.ReadInt(common.INI_WINDOW_POS_Y, 100)
+        win_pos = wx.Point(wx.ConfigBase_Get().ReadInt(common.INI_WINDOW_POS_X, 100),
+                           wx.ConfigBase_Get().ReadInt(common.INI_WINDOW_POS_Y, 100)
                            )
-        win_size = wx.Size(self.config.ReadInt(common.INI_WINDOW_SIZE_W, 600),
-                           self.config.ReadInt(common.INI_WINDOW_SIZE_H, 600)
+        win_size = wx.Size(wx.ConfigBase_Get().ReadInt(common.INI_WINDOW_SIZE_W, 600),
+                           wx.ConfigBase_Get().ReadInt(common.INI_WINDOW_SIZE_H, 600)
                            )
 
         self.frame = MainFrame(None, -1, "RDIViewer",pos=win_pos, size=win_size)

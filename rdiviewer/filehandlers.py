@@ -69,8 +69,9 @@ class advFileHandler(object):
     
             return self.data_cache[idx]
 
-    def __dataFromFile(self, data):
+    def _dataFromFile(self, data):
         return
+
     def GetColumns(self):
         return [
             {"label":'Name'
