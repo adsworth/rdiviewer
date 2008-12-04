@@ -38,8 +38,7 @@ class advFileHandler(object):
         self.file_name = file_name
         self.doc_list = []
         self.doc_count = 0
-        config = wx.ConfigBase_Get()
-        self.default_encoding = config.Read(common.INI_CODECS_DEFAULT,'cp1250')
+        self.default_encoding = wx.ConfigBase_Get().Read(common.INI_CODECS_DEFAULT,'cp1250')
         self.data_cache = {}
 
     def ScanForDocuments(self):
@@ -139,6 +138,13 @@ class advSimpleRdiHandler(advFileHandler):
         return False
         
     def ScanForDocuments(self):
+        """scans the file contents and builds the doc_list attribute.
+        each entry in the doc_list contains a dict with the keys:
+        
+        - name : which contains the name of the document displayed in the list.
+        - begin : byte offset of the beginning of teh document from the beginning of the file.
+        - end : byte offset of the end of the document from the beginning of the file
+        """
         try:
             fo = self._OpenFileHandle(self.file_name)
             self._StartProgress(os.path.getsize(self.file_name)+10000, 'Text analyse')
@@ -146,14 +152,17 @@ class advSimpleRdiHandler(advFileHandler):
             bytes_read = 0
             doc_begin_offset = 0
             doc_description = ""
-            first_doc_len = 0
             line = ""
+            # skip al line until a header record is found
             while not regex.match(line):
                 line = fo.readline()
                 bytes_read += len(line)
             
+            # document begins at the beginning of the current line.
             doc_begin_offset = bytes_read - len(line)
-            doc_description = line.rstrip('\r\n')
+            
+            doc_description = line.rstrip('\n\r')
+
             for line in fo:
                 if regex.match(line):
                     doc = {"name":doc_description, 
@@ -324,9 +333,9 @@ class simpleRdiNode(object):
         return value
 
 
-class advRDIHandler(advFileHandler):
+class advRDIHandler(advSimpleRdiHandler):
     def __init__(self, file_name):
-        advFileHandler.__init__(self,file_name)
+        advSimpleRdiHandler.__init__(self,file_name)
         
     def CanHandle(self):
         fo = self._OpenFileHandle(self.file_name)
@@ -338,77 +347,9 @@ class advRDIHandler(advFileHandler):
         
         return False
         
-    def ScanForDocuments(self):
-        try:
-            fo = self._OpenFileHandle(self.file_name)
-            self._StartProgress(os.path.getsize(self.file_name)+10000, 'Text analyse')
-            regex = re.compile("^H[0-9a-zA-Z]")
-            bytes_read = 0
-            doc_begin_offset = 0
-            doc_description = ""
-            first_doc_len = 0
-            line = ""
-            while not regex.match(line):
-                line = fo.readline()
-                bytes_read += len(line)
-            
-            doc_begin_offset = bytes_read - len(line)
-            doc_description = line.rstrip('\r\n')
-            for line in fo:
-                if regex.match(line):
-                    doc = {"name":doc_description, 
-                           "begin":doc_begin_offset,
-                           "end": bytes_read}
-                    self.doc_list.append(doc)
-                    doc_begin_offset = bytes_read
-                    doc_description = line.rstrip('\n\r')
-
-                bytes_read += len(line)
-                
-                keepGoing = self._UpdateProgress(bytes_read)
-                if keepGoing == False:
-                    self.doc_list = []
-                    break
-    
-            doc = {"name":doc_description, 
-                   "begin":doc_begin_offset,
-                   "end": bytes_read}
-            self.doc_list.append(doc)
-
-            self._StopProgress()
-        except:
-            self._StopProgress()
-        return False
-
-    def GetDocument(self, item):
-        return self.GetDocumentFromData(self.GetDocumentData(item))
-
     def GetDocumentFromData(self, data):
         return advRDIDocument(data)
 
-    def HasPrintAndPreview(self):
-        return True
-
-    def IsDocPreview(self,doc_id):
-        data = self.GetDocumentData(doc_id)
-        header = data.splitlines()[0]
-        if header[185] == 'X':
-            return True
-        return False
-
-    def ChangeDocType(self,type, item):
-        data = self.GetDocumentData(item)
-        data = data.splitlines()
-        header = data[0]
-        hostname = os.getenv("COMPUTERNAME")
-
-        hostname = hostname + ( ' ' * ( 10 - len(hostname)))
-
-        header = header[:45] + hostname + header[55:]
-        if type == 'print':
-            header[185] = ' '
-        elif type == 'preview':
-            header[185] = 'X'
 
 class advRDIDocument(object):
     def __init__(self, data):
