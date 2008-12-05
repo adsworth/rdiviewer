@@ -26,6 +26,7 @@ import common
 
 # file handlers
 LEN_NEWLINE = len('\n')
+
 def GetHandlerForFile(file):
     for handler_class in handler_list:
         handler = handler_class(file)
@@ -462,50 +463,6 @@ class rdiNode(object):
 
         return value
 
-
-class advJetFormHandler(advFileHandler):
-    def __init__(self, file_name):
-        advFileHandler.__init__(self, file_name)
-        
-    def CanHandle(self):
-        fo = self._OpenFileHandle(self.file_name)
-        data = fo.read(200)
-        if re.match("^\^job", data):
-            return True
-        
-        return False
-
-    def ScanForDocuments(self):
-        fo = self._OpenFileHandle(self.file_name)
-        regex = re.compile("^\^page 1")
-        bytes_read = 0
-        doc_begin_offset = 0
-        doc_end_offset = 0
-        doc_description = ""
-        doc_open = False
-        
-        idx = 0
-        for line in fo:
-            if regex.match(line):
-                if doc_open == True:
-                  idx += 1
-#                  doc_end_offset = bytes_read + len(line)
-                  doc = {"name":doc_description, 
-                         "begin":doc_begin_offset,
-                         "end":bytes_read}
-                  self.doc_list.append(doc)
-                  doc_begin_offset = bytes_read + 1
-                  doc_description = "%s %s" %(idx, line)
-                else:
-                    idx += 1
-                    doc_open = True
-                    doc_begin_offset = bytes_read
-                    doc_description = "%s %s" %(idx, line)
-            bytes_read += len(line)
-            
-        return False
-
 handler_list = []
 handler_list.append(advSimpleRdiHandler)
 handler_list.append(advRDIHandler)
-handler_list.append(advJetFormHandler)
