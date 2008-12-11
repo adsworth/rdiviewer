@@ -380,9 +380,7 @@ class MainFrame(wx.Frame):
         event.Skip()
 
     def OnAboutDlg(self, event):
-        dlg = dialogs.AboutDialog(self, -1, "About", size=(350, 200),
-                 #style = wxCAPTION | wxSYSTEM_MENU | wxTHICK_FRAME
-                 style = wx.DEFAULT_DIALOG_STYLE
+        dlg = dialogs.AboutDialog(self, -1, size=(350, 200)
                  )
 
         dlg.CenterOnScreen()
@@ -390,7 +388,11 @@ class MainFrame(wx.Frame):
         dlg.Destroy()
     
     def OnPreferencesDlg(self, event):
-        pass
+        dlg = dialogs.PreferencesDialog(self, -1)
+
+        dlg.CenterOnScreen()
+        val = dlg.ShowModal()
+        dlg.Destroy()
     
     def _MakeMenu(self):
         self.mainmenu = wx.MenuBar()
