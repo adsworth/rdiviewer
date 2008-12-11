@@ -55,7 +55,7 @@ class AboutDialog(wx.Dialog):
         label = wx.StaticText(self, -1, "Author:")
         box.Add(label, 0, wx.ALIGN_RIGHT|wx.ALL, 5)
 
-        label = wx.StaticText(self, -1, u"Adi J�rg Sieker")
+        label = wx.StaticText(self, -1, u"Adi Jörg Sieker")
         box.Add(label, 1, wx.ALIGN_LEFT|wx.ALL, 5)
 
         sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
@@ -98,7 +98,7 @@ class AboutDialog(wx.Dialog):
         label = wx.StaticText(self, -1, u"Copyright:")
         box.Add(label, 0, wx.ALIGN_RIGHT|wx.ALL, 5)
 
-        label = wx.StaticText(self, -1, u"Adi J�rg Sieker 2004-2008")
+        label = wx.StaticText(self, -1, u"Adi Jörg Sieker 2004-2008")
         box.Add(label, 1, wx.ALIGN_LEFT|wx.ALL, 5)
 
         sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
@@ -116,83 +116,6 @@ class AboutDialog(wx.Dialog):
         self.SetAutoLayout(True)
         sizer.Fit(self)
 
-class LicenseDialog(wx.Dialog):
-    def __init__(
-            self, parent, ID, title, size=wx.DefaultSize, pos=wx.DefaultPosition, 
-            style=wx.DEFAULT_DIALOG_STYLE
-            ):
-
-        # Instead of calling wx.Dialog.__init__ we precreate the dialog
-        # so we can set an extra style that must be set before
-        # creation, and then we create the GUI dialog using the Create
-        # method.
-        pre = wx.PreDialog()
-        pre.SetExtraStyle(wx.DIALOG_EX_CONTEXTHELP)
-        pre.Create(parent, ID, title, pos, size, style)
-
-        # This next step is the most important, it turns this Python
-        # object into the real wrapper of the dialog (instead of pre)
-        # as far as the wxPython extension is concerned.
-        self.PostCreate(pre)
-
-        # Now continue with the normal construction of the dialog
-        # contents
-        sizer = wx.BoxSizer(wx.VERTICAL)
-
-
-        box = wx.BoxSizer(wx.HORIZONTAL)
-
-        label = wx.StaticText(self, -1, "Licensed for:")
-        box.Add(label, 0, wx.ALIGN_RIGHT|wx.ALL, 5)
-
-        label = wx.StaticText(self, -1, common.L['name'])
-        label.SetHelpText("Name of person or company this license is valid for")
-        box.Add(label, 1, wx.ALIGN_LEFT|wx.ALL, 5)
-
-        sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
-
-
-
-        box = wx.BoxSizer(wx.HORIZONTAL)
-
-        label = wx.StaticText(self, -1, "SpoolDir:")
-        box.Add(label, 0, wx.ALIGN_RIGHT|wx.ALL, 5)
-
-        s = 'Beliebige SpoolDirs'
-        if common.L.has_key('spooldir') and common.L['spooldir'] != '':
-            s = common.L['spooldir']
-        
-        label = wx.StaticText(self, -1, s)
-        label.SetHelpText("Directory in which the RDI files reside")
-        box.Add(label, 1, wx.ALIGN_LEFT|wx.ALL, 5)
-
-        sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
-
-
-        box = wx.BoxSizer(wx.HORIZONTAL)
-
-        label = wx.StaticText(self, -1, "License version:")
-        box.Add(label, 0, wx.ALIGN_RIGHT|wx.ALL, 5)
-
-        label = wx.StaticText(self, -1, common.L['version'])
-        label.SetHelpText("Version of the license file format")
-        box.Add(label, 1, wx.ALIGN_LEFT|wx.ALL, 5)
-
-        sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
-
-
-
-        box = wx.BoxSizer(wx.HORIZONTAL)
-
-        btn = wx.Button(self, wx.ID_OK, " OK ")
-        btn.SetDefault()
-        box.Add(btn, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
-
-        sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
-
-        self.SetSizer(sizer)
-        self.SetAutoLayout(True)
-        sizer.Fit(self)
 
 class advFilterDialog(wx.Dialog):
     def __init__(self, parent, pos = wx.DefaultPosition, size = wx.DefaultSize):

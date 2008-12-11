@@ -40,6 +40,8 @@ class MainFrame(wx.Frame):
         
         self.currentItem = None
 
+        self.docMenuItems = []
+
         self.CreateStatusBar()
 
         self._MakeMenu()
@@ -385,33 +387,24 @@ class MainFrame(wx.Frame):
         dlg.CenterOnScreen()
         val = dlg.ShowModal()
         dlg.Destroy()
-
     
-    def OnLicenseDlg(self, event):
-        dlg = controls.LicenseDialog(self, -1, "License", size=(350, 200),
-                 #style = wxCAPTION | wxSYSTEM_MENU | wxTHICK_FRAME
-                 style = wx.DEFAULT_DIALOG_STYLE
-                 )
-
-        dlg.CenterOnScreen()
-        val = dlg.ShowModal()
-        dlg.Destroy()
+    def OnPreferencesDlg(self, event):
+        pass
+    
     def _MakeMenu(self):
         self.mainmenu = wx.MenuBar()
 
         menu = self._MakeFileMenu()
         self.mainmenu.Append(menu, '&File')
 
-        menu = self._MakeDocumentMenu()
-
-        self.mainmenu.Append(menu, '&Document')
 
         menu = self._MakeEditMenu()
-
         self.mainmenu.Append(menu, '&Edit')
 
-        menu = self._MakeHelpMenu()
+        menu = self._MakeDocumentMenu()
+        self.mainmenu.Append(menu, '&Document')
 
+        menu = self._MakeHelpMenu()
         self.mainmenu.Append(menu, '&Help')
 
         self.SetMenuBar(self.mainmenu)
@@ -420,9 +413,14 @@ class MainFrame(wx.Frame):
         menu = wx.Menu()
 
         mID = wx.NewId()
-        menu.Append(mID, '&Copy Name\tAlt-C', 'Copy variable name to clipboard')
+        mi = menu.Append(mID, '&Copy Name\tAlt-C', 'Copy variable name to clipboard')
+        mi.Enable(False)
         wx.EVT_MENU(self, mID, self.OnCopyNameOpen)
+        self.docMenuItems.append(mi)
         
+        mi = menu.Append(wx.ID_PREFERENCES, '&Preferences', 'RDIViewer preferences')
+        wx.EVT_MENU(self, wx.ID_PREFERENCES, self.OnPreferencesDlg)
+
         return menu
 
     def _MakeFileMenu(self):
@@ -440,7 +438,7 @@ class MainFrame(wx.Frame):
 
     def _MakeDocumentMenu(self):
         menu = wx.Menu()
-        self.docMenuItems = []
+
         mID = wx.NewId()
         mi = menu.Append(mID, '&Enqueue\tCtrl-E', 'Enqueue')
         mi.Enable(False)
@@ -462,13 +460,8 @@ class MainFrame(wx.Frame):
 
     def _MakeHelpMenu(self):
         menu = wx.Menu()
-        mID = wx.NewId()
-        mi = menu.Append(mID, '&About...', 'About Dialog')
-        wx.EVT_MENU(self, mID, self.OnAboutDlg)
-
-        mID = wx.NewId()
-        mi = menu.Append(mID, '&License', 'License information')
-        wx.EVT_MENU(self, mID, self.OnLicenseDlg)
+        mi = menu.Append(wx.ID_ABOUT, '&About...', 'About Dialog')
+        wx.EVT_MENU(self, wx.ID_ABOUT, self.OnAboutDlg)
 
         return menu
 
