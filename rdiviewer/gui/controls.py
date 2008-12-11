@@ -117,7 +117,7 @@ class AboutDialog(wx.Dialog):
         sizer.Fit(self)
 
 
-class advSTC(wx.stc.StyledTextCtrl):
+class DocumentTextCtrl(wx.stc.StyledTextCtrl):
     def __init__(self, parent, ID):
         wx.stc.StyledTextCtrl.__init__(self, parent, ID)
 
@@ -204,7 +204,7 @@ class advSTC(wx.stc.StyledTextCtrl):
 
         return st
 
-class advDocSructure(wx.gizmos.TreeListCtrl):
+class DocumentStructureCtrl(wx.gizmos.TreeListCtrl):
     def __init__(self, parent, id, style):
         wx.gizmos.TreeListCtrl.__init__(self, parent, id, style=style)
 
@@ -270,7 +270,7 @@ class advDocSructure(wx.gizmos.TreeListCtrl):
             self.SetItemImage(node, expanded, which = wx.TreeItemIcon_Expanded)
 
 
-class SingleColListCtrl(wx.ListCtrl, wx.lib.mixins.listctrl.ListCtrlAutoWidthMixin):
+class DocumentListCtrl(wx.ListCtrl, wx.lib.mixins.listctrl.ListCtrlAutoWidthMixin):
     def __init__(self, parent, ID, title, pos=wx.DefaultPosition,
                  size=wx.DefaultSize, style=0):
         wx.ListCtrl.__init__(self, parent, ID, pos, size, style | wx.LC_VIRTUAL )
