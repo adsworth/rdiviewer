@@ -30,6 +30,7 @@ import wx
 
 from   rdiviewer import common
 import rdiviewer.gui.controls as controls
+import rdiviewer.gui.dialogs as dialogs
 import rdiviewer.filehandlers as filehandlers
 
 class MainFrame(wx.Frame):
@@ -79,7 +80,7 @@ class MainFrame(wx.Frame):
 
         self.lPanel = wx.Panel(self.splitter)
         
-        self.doc_list = controls.SingleColListCtrl(self.lPanel, -1, "Documents",
+        self.doc_list = controls.DocumentListCtrl(self.lPanel, -1, "Documents",
                                  style=wx.LC_REPORT | wx.NO_BORDER)
 
         self.lPanelSizer = wx.BoxSizer(wx.VERTICAL)
@@ -92,7 +93,7 @@ class MainFrame(wx.Frame):
         # create panel and tree control
         self.structure_panel = wx.Panel(self.nb, -1, style=wx.CLIP_CHILDREN| wx.TAB_TRAVERSAL )
 
-        self.doc_structure = controls.advDocSructure(self.structure_panel, -1, style = wx.TR_DEFAULT_STYLE |
+        self.doc_structure = controls.DocumentStructureCtrl(self.structure_panel, -1, style = wx.TR_DEFAULT_STYLE |
                                                      wx.TR_HIDE_ROOT |
                                                      wx.NO_BORDER
                                                      )
@@ -108,7 +109,7 @@ class MainFrame(wx.Frame):
 
         # create panel and text control
         self.contents_panel = wx.Panel(self.nb, -1, style=wx.CLIP_CHILDREN)
-        self.doc_contents = controls.advSTC(self.contents_panel, -1)
+        self.doc_contents = controls.DocumentTextCtrl(self.contents_panel, -1)
 
         self.nb.AddPage(self.contents_panel, 'Document Contents')
 
@@ -379,7 +380,7 @@ class MainFrame(wx.Frame):
         event.Skip()
 
     def OnAboutDlg(self, event):
-        dlg = controls.AboutDialog(self, -1, "About", size=(350, 200),
+        dlg = dialogs.AboutDialog(self, -1, "About", size=(350, 200),
                  #style = wxCAPTION | wxSYSTEM_MENU | wxTHICK_FRAME
                  style = wx.DEFAULT_DIALOG_STYLE
                  )
